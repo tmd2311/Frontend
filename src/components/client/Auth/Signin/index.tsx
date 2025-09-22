@@ -44,7 +44,7 @@ const Signin = () => {
       login(
         formData,
         () => {
-          toast.success("🎉 Đăng nhập thành công");
+          toast.success("Đăng nhập thành công");
           if (formData.account === "admin") {
             router.push("/admin-app");
           } else {
