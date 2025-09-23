@@ -38,7 +38,7 @@ export const categoryService = {
 
     return categories.map(item => ({
       id: item.id ?? item._id ?? Math.random().toString(),
-      title: item.title ?? item.name ?? item.categoryName ?? 'Unknown Category',
+      name: item.title ?? item.name ?? item.categoryName ?? 'Unknown Category',
       img: item.img ?? item.image ?? item.imageUrl ?? item.thumbnail ?? '/images/default-category.jpg',
       description: item.description ?? '',
       createdAt: item.createdAt ?? item.created_at,

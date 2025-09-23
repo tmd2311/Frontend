@@ -26,16 +26,10 @@ export const menuData: Menu[] = [
     path: "/wishlist",
   },
 
-  {
-    id: 5,
-    title: "Contact",
-    newTab: false,
-    path: "/contact",
-  },
-  {
-    id: 6,
-    title: "Blog",
-    newTab: false,
-    path: "/blogs/blog-grid-with-sidebar",
-  }
+  // {
+  //   id: 5,
+  //   title: "Contact",
+  //   newTab: false,
+  //   path: "/contact",
+  // }
 ]
