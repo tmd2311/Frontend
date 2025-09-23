@@ -8,6 +8,7 @@ import shopData from "../Shop/shopData";
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
 import { useCategories } from "@/hooks/useCategories";
+import { useProducts } from "@/hooks/useProducts";
 
 const ShopWithSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
@@ -28,7 +29,8 @@ const ShopWithSidebar = () => {
     { label: "Old Products", value: "2" },
   ];
 
-  const { categories, loading, error } = useCategories();
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { products, loading: productsLoading, error: productsError } = useProducts(0, 12);
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
@@ -110,7 +112,7 @@ const ShopWithSidebar = () => {
 
                   {/* <!-- category box --> */}
                   <CategoryDropdown categories={categories} />
-                  
+
                   {/* // <!-- price range box --> */}
                   <PriceDropdown />
                 </div>
@@ -126,10 +128,10 @@ const ShopWithSidebar = () => {
                   <div className="flex flex-wrap items-center gap-4">
                     <CustomSelect options={options} />
 
-                    <p>
+                    {/* <p>
                       Showing <span className="text-dark">9 of 50</span>{" "}
                       Products
-                    </p>
+                    </p> */}
                   </div>
 
                   {/* <!-- top bar right --> */}
@@ -221,7 +223,7 @@ const ShopWithSidebar = () => {
                     : "flex flex-col gap-7.5"
                 }`}
               >
-                {shopData.map((item, key) =>
+                {products.map((item, key) =>
                   productStyle === "grid" ? (
                     <SingleGridItem item={item} key={key} />
                   ) : (

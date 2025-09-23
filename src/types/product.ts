@@ -1,11 +1,14 @@
 export type Product = {
-  title: string;
-  reviews: number;
-  price: number;
-  discountedPrice: number;
-  id: number;
-  imgs?: {
-    thumbnails: string[];
-    previews: string[];
+  id: string;
+  name: string;
+  description: string;
+  brandName: string;
+  categoryName: string;
+  specs: {
+    CPU?: string;
+    Display?: string;
+    [key: string]: string | undefined;
   };
+  price: number;
+  thumbnailUrl?: string | null;
 };

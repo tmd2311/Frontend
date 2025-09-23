@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import shopData from "@/components/Shop/shopData";
-import ProductItem from "@/components/Common/ProductItem";
+import shopData from "@/components/client/Shop/shopData";
+import ProductItem from "@/components/client/Common/ProductItem";
 import Image from "next/image";
 
 import { Swiper, SwiperSlide } from "swiper/react";

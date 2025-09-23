@@ -127,8 +127,8 @@ const ShopDetails = () => {
                       </button>
 
                       <Image
-                        src={product.imgs?.previews[previewImg]}
-                        alt="products-details"
+                        src={product.imgs?.previews?.[previewImg] ?? "/images/placeholder.png"}
+                        alt={product.name ?? "product image"}
                         width={400}
                         height={400}
                       />
