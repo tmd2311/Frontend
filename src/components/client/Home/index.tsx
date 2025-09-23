@@ -3,7 +3,6 @@ import Hero from "./Hero";
 import Categories from "./Categories";
 import NewArrival from "./NewArrivals";
 import BestSeller from "./BestSeller";
-import CounDown from "./Countdown";
 import Testimonials from "./Testimonials";
 import Newsletter from "../Common/Newsletter";
 
@@ -14,7 +13,6 @@ const Home = () => {
       <Categories />
       <NewArrival />
       <BestSeller />
-      <CounDown />
       <Testimonials />
       <Newsletter />
     </main>

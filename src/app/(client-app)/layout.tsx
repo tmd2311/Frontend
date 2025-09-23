@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import "../css/euclid-circular-a-font.css";
 import "../css/style.css";
-import "react-toastify/dist/ReactToastify.css"; // 👈 thêm dòng này
+import "react-toastify/dist/ReactToastify.css"; 
 import Header from "@/components/client/Header";
 import Footer from "@/components/client/Footer";
 import { ModalProvider } from "../context/QuickViewModalContext";
