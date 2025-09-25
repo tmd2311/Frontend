@@ -7,6 +7,14 @@ export interface ProductSpec {
   display?: string;
   weight?: string;
   battery?: string;
+  CPU?: string;
+  RAM?: string;
+  storageType?: string;
+  screenSize?: string;
+  resolution?: string;
+  camera?: string;
+  os?: string;
+  [key: string]: string | undefined;
 }
 
 export interface Product {
@@ -33,6 +41,8 @@ export interface ProductDetail {
   brandId: string;
   categoryId: string;
   specs:  ProductSpec;
+  price: number;
+  thumbnailUrl: string;
 }
 
 // Customer Types

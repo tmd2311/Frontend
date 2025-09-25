@@ -24,7 +24,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const handleChange = (field: string, value: string) => {
-    if (field in editableProduct.specs) {
+      if (field === "CPU" || field === "display") {
       setEditableProduct({
         ...editableProduct,
         specs: { ...editableProduct.specs, [field]: value },
@@ -160,33 +160,33 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         {/* Specs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center space-x-4">
-            <label className="w-36 font-semibold text-black text-sm">RAM:</label>
+            <label className="w-36 font-semibold text-black text-sm">CPU:</label>
             {isEditing ? (
               <input
                 type="text"
-                value={editableProduct.specs.ram}
-                onChange={(e) => handleChange("ram", e.target.value)}
+                value={editableProduct.specs.CPU}
+                onChange={(e) => handleChange("CPU", e.target.value)}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-black text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             ) : (
               <span className="px-2 py-1 bg-gray-200 rounded-md text-black text-sm font-medium">
-                {product.specs.ram}
+                {product.specs.CPU}
               </span>
             )}
           </div>
 
           <div className="flex items-center space-x-4">
-            <label className="w-36 font-semibold text-black text-sm">Dung lượng:</label>
+            <label className="w-36 font-semibold text-black text-sm">Display:</label>
             {isEditing ? (
               <input
                 type="text"
-                value={editableProduct.specs.storage}
-                onChange={(e) => handleChange("storage", e.target.value)}
+                value={editableProduct.specs.display}
+                onChange={(e) => handleChange("display", e.target.value)}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-black text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             ) : (
               <span className="px-2 py-1 bg-gray-200 rounded-md text-black text-sm font-medium">
-                {product.specs.storage}
+                {product.specs.display}
               </span>
             )}
           </div>

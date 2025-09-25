@@ -15,7 +15,7 @@ import PreviewSliderModal from "@/components/client/Common/PreviewSlider";
 import ScrollToTop from "@/components/client/Common/ScrollToTop";
 import PreLoader from "@/components/client/Common/PreLoader";
 import ReduxProvider from "../../utils/Provider/ReduxProvider";
-import { ToastContainer } from "react-toastify"; 
+import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({
   children,

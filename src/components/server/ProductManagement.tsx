@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Plus,
@@ -10,7 +10,12 @@ import {
 import { Product, ProductDetail, SortConfig } from "@/types/Admin";
 import { formatPrice } from '../../utils/helpers';
 import Image from "next/image";
-import { ProductDetails } from "./ProductDetails"; 
+import { ProductDetails } from "./ProductDetails";
+import { useCategories } from "@/hooks/useCategories";
+import { useBrands } from "@/hooks/useBrand";
+import { useProducts } from "@/hooks/useProducts";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 interface ProductManagementProps {
   products: Product[];
@@ -18,12 +23,32 @@ interface ProductManagementProps {
 }
 
 const ProductManagement: React.FC<ProductManagementProps> = ({
-  products,
-  onDeleteProduct,
+  products, onDeleteProduct,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
+
+  // --- Gọi hooks ---
+  const { categories, loading: loadingCategories, error: errorCategories } = useCategories();
+  const { brands, loading: loadingBrands, error: errorBrands } = useBrands();
+
+  const { updateProduct, deleteProduct } = useProducts();
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!token) return alert("Bạn chưa đăng nhập");
+    const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteProduct(id, token);
+      setLocalProducts((prev) => prev.filter((p) => p.id !== id));
+      alert("Xóa sản phẩm thành công!");
+    } catch (err: any) {
+      console.error("Lỗi khi xóa sản phẩm:", err);
+      alert(err.message || "Xóa sản phẩm thất bại!");
+    }
+  };
 
   const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({
     min: "",
@@ -39,8 +64,15 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
 
   const itemsPerPage = 5;
 
+  const { user, token, isLogin } = useSelector((state: RootState) => state.auth);
 
-  const filteredProducts = products.filter((product) => {
+  const [localProducts, setLocalProducts] = useState<Product[]>(products);
+
+  useEffect(() => {
+    setLocalProducts(products);
+  }, [products]);
+
+  const filteredProducts = localProducts.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.brandName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -53,6 +85,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
 
     return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
   });
+
 
   // --- Sắp xếp ---
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -106,11 +139,10 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
         <button
           key={i}
           onClick={() => setCurrentPage(i)}
-          className={`px-3 py-1 border rounded-md text-sm ${
-            currentPage === i
+          className={`px-3 py-1 border rounded-md text-sm ${currentPage === i
               ? "bg-blue-600 text-white"
               : "hover:bg-gray-100 text-gray-700"
-          }`}
+            }`}
         >
           {i}
         </button>
@@ -122,31 +154,34 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
 
   // --- Nếu đang xem chi tiết sản phẩm ---
   if (selectedProduct) {
+    const categoryId = categories.find((c) => c.name === selectedProduct.categoryName)?.id || "";
+    const brandId = brands.find((b) => b.name === selectedProduct.brandName)?.id || "";
     const productDetail: ProductDetail = {
       id: selectedProduct.id,
       name: selectedProduct.name,
       description: selectedProduct.description || "",
-      brandId: selectedProduct.brandName || "",
-      categoryId: selectedProduct.categoryName || "",
-      specs: selectedProduct.specs || { ram: "", storage: "" },
+      brandId: brandId,
+      categoryId: categoryId,
+      specs: selectedProduct.specs || { CPU: "", display: "" },
+      price: selectedProduct.price,
+      thumbnailUrl: selectedProduct.thumbnailUrl,
     };
 
-    
+
     return (
       <ProductDetails
         product={productDetail}
-        brands={[
-          { id: "1", name: "Apple" },
-          { id: "2", name: "Dell" },
-          { id: "3", name: "ASUS" },
-        ]}
-        categories={[
-          { id: "1", name: "Laptop cao cấp" },
-          { id: "2", name: "Laptop văn phòng" },
-        ]}
-        onSave={(updatedProduct) => {
+        brands={brands}
+        categories={categories}
+        onSave={async (updatedProduct) => {
+          await updateProduct(updatedProduct.id, updatedProduct, token || "");
+          setLocalProducts((prev) =>
+            prev.map((p) =>
+              p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
+            )
+          );
           console.log("Updated product:", updatedProduct);
-          setSelectedProduct(null); // quay lại danh sách
+          setSelectedProduct(null);
         }}
         onCancel={() => setSelectedProduct(null)}
       />
@@ -187,8 +222,12 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="">Tất cả danh mục</option>
-            <option value="Laptop cao cấp">Laptop cao cấp</option>
-            <option value="Laptop văn phòng">Laptop văn phòng</option>
+            {!loadingCategories &&
+              categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
           </select>
 
           <select
@@ -197,8 +236,12 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
             onChange={(e) => setSelectedBrand(e.target.value)}
           >
             <option value="">Tất cả thương hiệu</option>
-            <option value="Apple">Apple</option>
-            <option value="Dell">Dell</option>
+            {!loadingBrands &&
+              brands.map((b) => (
+                <option key={b.id} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
           </select>
 
           <div className="flex space-x-2">
@@ -318,7 +361,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
                         </button>
                         <button
                           className="text-red-600 hover:text-red-900"
-                          onClick={() => onDeleteProduct(product.id)}
+                          onClick={() => handleDeleteProduct(product.id)}
                           title="Xóa"
                         >
                           <Trash2 size={16} />

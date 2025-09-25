@@ -1,43 +1,38 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Product } from "@/types/product";
+import { createContext, useContext, useState, ReactNode } from "react";
 
-interface ModalContextType {
-  isModalOpen: boolean;
-  selectedProduct: Product | null;
-  openModal: (product: Product) => void;
+interface QuickViewModalContextType {
+  productId: string | null;
+  isOpen: boolean;
+  openModal: (id: string) => void;
   closeModal: () => void;
 }
 
-const ModalContext = createContext<ModalContextType | undefined>(undefined);
-
-export const useModalContext = () => {
-  const context = useContext(ModalContext);
-  if (!context) {
-    throw new Error("useModalContext must be used within a ModalProvider");
-  }
-  return context;
-};
+const QuickViewModalContext = createContext<QuickViewModalContextType | undefined>(undefined);
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productId, setProductId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const openModal = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
+  const openModal = (id: string) => {
+    setProductId(id);
+    setIsOpen(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
+    setIsOpen(false);
+    setProductId(null);
   };
 
   return (
-    <ModalContext.Provider
-      value={{ isModalOpen, selectedProduct, openModal, closeModal }}
-    >
+    <QuickViewModalContext.Provider value={{ productId, isOpen, openModal, closeModal }}>
       {children}
-    </ModalContext.Provider>
+    </QuickViewModalContext.Provider>
   );
+};
+
+export const useModalContext = () => {
+  const context = useContext(QuickViewModalContext);
+  if (!context) throw new Error("useModalContext must be used within ModalProvider");
+  return context;
 };

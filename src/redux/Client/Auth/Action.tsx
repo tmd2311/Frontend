@@ -53,7 +53,7 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
   return async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
     try {
-      const res = await fetch(`${BASE_API_URL}/api/auth/login`, {
+      const res = await fetch(`${BASE_API_URL}/services/auth-service/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -66,6 +66,7 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
       }
 
       if (resData.data?.token) {
+        localStorage.setItem("token", resData.data.token);
         dispatch({ type: LOGIN_SUCCESS, payload: resData.data });
         onSuccess?.(resData);
       } else {
@@ -77,7 +78,7 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
     }
   };
 };
-/*- Bổ xung sau -*/ 
+/*- Bổ sung sau -*/ 
 export const updateUser = (formData: FormData, onSuccess?: any, onError?: any) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_USER_REQUEST });
