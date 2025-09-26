@@ -4,7 +4,7 @@ import { CustomerPurchase } from "../../../../../types/Admin";
 import { CustomerDetails } from "../../../../../components/server/CustomerDetails";
 
 export const metadata: Metadata = {
-  title: "NextCommerce | Customer Detail",
+  title: "Proshop - Customer Detail",
   description: "View customer purchase details",
 };
 

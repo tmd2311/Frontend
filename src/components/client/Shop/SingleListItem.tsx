@@ -5,6 +5,7 @@ import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
 import Link from "next/link";
 import Image from "next/image";
+import { formatPrice } from "@/utils/helpers";
 
 const SingleListItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -19,7 +20,7 @@ const SingleListItem = ({ item }: { item: Product }) => {
           <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
             <button
               onClick={() => {
-                openModal(item);
+                openModal(item.id);
               
               }}
               aria-label="button for quick view"
@@ -86,9 +87,8 @@ const SingleListItem = ({ item }: { item: Product }) => {
             </h3>
 
             <span className="flex items-center gap-2 font-medium text-lg">
-              <span className="text-dark">${item.price}</span>
-              <span className="text-dark-4 line-through">${item.price}</span>
-              <span className="text-dark">VND</span>
+              <span className="text-dark">{formatPrice(item.price)}</span>
+              <span className="text-dark-4 line-through">{formatPrice(item.price)}</span>
             </span>
           </div>
 

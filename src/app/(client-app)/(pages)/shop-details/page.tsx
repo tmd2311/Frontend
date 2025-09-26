@@ -3,8 +3,8 @@ import ShopDetails from "@/components/client/ShopDetails";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shop Details Page | NextCommerce Nextjs E-commerce template",
-  description: "This is Shop Details Page for NextCommerce Template",
+  title: "Proshop - Shop Details Page",
+  description: "This is Shop Details Page for Proshop",
 };
 
 const ShopDetailsPage = () => {

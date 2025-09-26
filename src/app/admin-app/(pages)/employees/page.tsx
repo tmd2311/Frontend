@@ -4,8 +4,8 @@ import { mockEmployees } from "../../../../utils/mockData";
 
 
 export const metadata: Metadata = {
-  title: "NextCommerce | Employee Management",
-  description: "Manage employee information in NextCommerce Admin Panel",
+  title: "Proshop - Employee Management",
+  description: "Manage employee information in Proshop Admin Panel",
 };
 
 export default function EmployeesPage() {

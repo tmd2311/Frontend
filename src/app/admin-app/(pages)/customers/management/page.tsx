@@ -4,8 +4,8 @@ import { mockCustomers } from "../../../../../utils/mockData";
 
 
 export const metadata: Metadata = {
-  title: "NextCommerce | Customer Management",
-  description: "Manage customer information in NextCommerce Admin Panel",
+  title: "Proshop - Customer Management",
+  description: "Manage customer information in Proshop Admin Panel",
 };
 
 export default function CustomerManagementPage() {

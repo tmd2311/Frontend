@@ -30,7 +30,10 @@ const ShopWithSidebar = () => {
   ];
 
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const { products, loading: productsLoading, error: productsError } = useProducts(0, 12);
+  const [page, setPage] = useState(0);
+  const size = 12;
+  const { products, meta, loading } = useProducts(page, size);
+
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
@@ -62,20 +65,18 @@ const ShopWithSidebar = () => {
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
             <div
-              className={`sidebar-content fixed xl:z-1 z-9999 left-0 top-0 xl:translate-x-0 xl:static max-w-[310px] xl:max-w-[270px] w-full ease-out duration-200 ${
-                productSidebar
+              className={`sidebar-content fixed xl:z-1 z-9999 left-0 top-0 xl:translate-x-0 xl:static max-w-[310px] xl:max-w-[270px] w-full ease-out duration-200 ${productSidebar
                   ? "translate-x-0 bg-white p-5 h-screen overflow-y-auto"
                   : "-translate-x-full"
-              }`}
+                }`}
             >
               <button
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
-                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-white shadow-1 ${
-                  stickyMenu
+                className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-white shadow-1 ${stickyMenu
                     ? "lg:top-20 sm:top-34.5 top-35"
                     : "lg:top-24 sm:top-39 top-37"
-                }`}
+                  }`}
               >
                 <svg
                   className="fill-current"
@@ -139,11 +140,10 @@ const ShopWithSidebar = () => {
                     <button
                       onClick={() => setProductStyle("grid")}
                       aria-label="button for product grid tab"
-                      className={`${
-                        productStyle === "grid"
+                      className={`${productStyle === "grid"
                           ? "bg-blue border-blue text-white"
                           : "text-dark bg-gray-1 border-gray-3"
-                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
+                        } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
                         className="fill-current"
@@ -183,11 +183,10 @@ const ShopWithSidebar = () => {
                     <button
                       onClick={() => setProductStyle("list")}
                       aria-label="button for product list tab"
-                      className={`${
-                        productStyle === "list"
+                      className={`${productStyle === "list"
                           ? "bg-blue border-blue text-white"
                           : "text-dark bg-gray-1 border-gray-3"
-                      } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
+                        } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
                         className="fill-current"
@@ -217,11 +216,10 @@ const ShopWithSidebar = () => {
 
               {/* <!-- Products Grid Tab Content Start --> */}
               <div
-                className={`${
-                  productStyle === "grid"
+                className={`${productStyle === "grid"
                     ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7.5 gap-y-9"
                     : "flex flex-col gap-7.5"
-                }`}
+                  }`}
               >
                 {products.map((item, key) =>
                   productStyle === "grid" ? (
@@ -232,18 +230,16 @@ const ShopWithSidebar = () => {
                 )}
               </div>
               {/* <!-- Products Grid Tab Content End --> */}
-
               {/* <!-- Products Pagination Start --> */}
               <div className="flex justify-center mt-15">
                 <div className="bg-white shadow-1 rounded-md p-2">
                   <ul className="flex items-center">
+                    {/* Prev */}
                     <li>
                       <button
-                        id="paginationLeft"
-                        aria-label="button for pagination left"
-                        type="button"
-                        disabled
-                        className="flex items-center justify-center w-8 h-9 ease-out duration-200 rounded-[3px disabled:text-gray-4"
+                        onClick={() => setPage((p) => Math.max(0, p - 1))}
+                        disabled={!meta.hasPrevious}
+                        className="flex items-center justify-center w-8 h-9 ease-out duration-200 rounded-[3px] disabled:text-gray-400 hover:text-white hover:bg-blue"
                       >
                         <svg
                           className="fill-current"
@@ -253,83 +249,32 @@ const ShopWithSidebar = () => {
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                         >
-                          <path
-                            d="M12.1782 16.1156C12.0095 16.1156 11.8407 16.0594 11.7282 15.9187L5.37197 9.45C5.11885 9.19687 5.11885 8.80312 5.37197 8.55L11.7282 2.08125C11.9813 1.82812 12.3751 1.82812 12.6282 2.08125C12.8813 2.33437 12.8813 2.72812 12.6282 2.98125L6.72197 9L12.6563 15.0187C12.9095 15.2719 12.9095 15.6656 12.6563 15.9187C12.4876 16.0312 12.347 16.1156 12.1782 16.1156Z"
-                            fill=""
-                          />
+                          <path d="M12.1782 16.1156C12.0095 16.1156 11.8407 16.0594 11.7282 15.9187L5.37197 9.45C5.11885 9.19687 5.11885 8.80312 5.37197 8.55L11.7282 2.08125C11.9813 1.82812 12.3751 1.82812 12.6282 2.08125C12.8813 2.33437 12.8813 2.72812 12.6282 2.98125L6.72197 9L12.6563 15.0187C12.9095 15.2719 12.9095 15.6656 12.6563 15.9187C12.4876 16.0312 12.347 16.1156 12.1782 16.1156Z" />
                         </svg>
                       </button>
                     </li>
 
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] bg-blue text-white hover:text-white hover:bg-blue"
-                      >
-                        1
-                      </a>
-                    </li>
+                    {/* Render số trang */}
+                    {Array.from({ length: meta.totalPages }, (_, i) => (
+                      <li key={i}>
+                        <button
+                          onClick={() => setPage(i)}
+                          className={`flex py-1.5 px-3.5 duration-200 rounded-[3px] ${meta.page === i
+                              ? "bg-blue text-white"
+                              : "hover:text-white hover:bg-blue"
+                            }`}
+                        >
+                          {i + 1}
+                        </button>
+                      </li>
+                    ))}
 
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        2
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        3
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        4
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        5
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        ...
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        href="#"
-                        className="flex py-1.5 px-3.5 duration-200 rounded-[3px] hover:text-white hover:bg-blue"
-                      >
-                        10
-                      </a>
-                    </li>
-
+                    {/* Next */}
                     <li>
                       <button
-                        id="paginationLeft"
-                        aria-label="button for pagination left"
-                        type="button"
-                        className="flex items-center justify-center w-8 h-9 ease-out duration-200 rounded-[3px] hover:text-white hover:bg-blue disabled:text-gray-4"
+                        onClick={() => setPage((p) => Math.min(meta.totalPages - 1, p + 1))}
+                        disabled={!meta.hasNext}
+                        className="flex items-center justify-center w-8 h-9 ease-out duration-200 rounded-[3px] disabled:text-gray-400 hover:text-white hover:bg-blue"
                       >
                         <svg
                           className="fill-current"
@@ -339,10 +284,7 @@ const ShopWithSidebar = () => {
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                         >
-                          <path
-                            d="M5.82197 16.1156C5.65322 16.1156 5.5126 16.0594 5.37197 15.9469C5.11885 15.6937 5.11885 15.3 5.37197 15.0469L11.2782 9L5.37197 2.98125C5.11885 2.72812 5.11885 2.33437 5.37197 2.08125C5.6251 1.82812 6.01885 1.82812 6.27197 2.08125L12.6282 8.55C12.8813 8.80312 12.8813 9.19687 12.6282 9.45L6.27197 15.9187C6.15947 16.0312 5.99072 16.1156 5.82197 16.1156Z"
-                            fill=""
-                          />
+                          <path d="M5.82197 16.1156C5.65322 16.1156 5.5126 16.0594 5.37197 15.9469C5.11885 15.6937 5.11885 15.3 5.37197 15.0469L11.2782 9L5.37197 2.98125C5.11885 2.72812 5.11885 2.33437 5.37197 2.08125C5.6251 1.82812 6.01885 1.82812 6.27197 2.08125L12.6282 8.55C12.8813 8.80312 12.8813 9.19687 12.6282 9.45L6.27197 15.9187C6.15947 16.0312 5.99072 16.1156 5.82197 16.1156Z" />
                         </svg>
                       </button>
                     </li>

@@ -15,7 +15,6 @@ const ShopDetails = () => {
   const [type, setType] = useState("active");
   const [sim, setSim] = useState("dual");
   const [quantity, setQuantity] = useState(1);
-
   const [activeTab, setActiveTab] = useState("tabOne");
 
   const storages = [

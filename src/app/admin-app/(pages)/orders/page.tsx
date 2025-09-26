@@ -4,8 +4,8 @@ import { mockOrders } from "../../../../utils/mockData";
 
 
 export const metadata: Metadata = {
-  title: "NextCommerce | Orders",
-  description: "Manage customer orders in NextCommerce",
+  title: "Proshop - Order Management",
+  description: "Manage customer orders in Proshop",
 };
 
 export default function OrdersPage() {

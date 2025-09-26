@@ -1,24 +1,15 @@
-"use client";
+import { Metadata } from "next";
+import ProductPageWrapper from "@/components/client/ProductPageWrapper";
 
-import React, { useState } from "react";
-import { Product } from "../../../../../types/Admin";
-import ProductManagement from "../../../../../components/server/ProductManagement";
-import { mockProducts } from "../../../../../utils/mockData";
-import { useProducts } from "@/hooks/useProducts";
-
-const ProductPage = () => {
-    const { products, loading, error, setProducts } = useProducts();
-
-  const handleDelete = (id: string) => {
-    
-  };
-
-  return (
-    <ProductManagement
-      products={products}
-      onDeleteProduct={handleDelete}
-    />
-  );
+export const metadata: Metadata = {
+  title: "Proshop - Product Management",
+  description: "Manage products in Proshop",
 };
 
-export default ProductPage;
+export default function ProductPage() {
+  return (
+    <main className="p-8">
+      <ProductPageWrapper />
+    </main>
+  );
+}

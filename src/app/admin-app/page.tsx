@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import { mockCustomers, mockOrders, mockProducts } from "../../utils/mockData";
 import { DashboardOverview } from "../../components/server/DashboardOverview";
 export const metadata: Metadata = {
-  title: "NextCommerce | Home",
-  description: "This is the main dashboard of NextCommerce Admin",
+  title: "Proshop - Admin Dashboard",
+  description: "This is the main dashboard of Proshop Admin",
 };
 
 export default function HomePage() {

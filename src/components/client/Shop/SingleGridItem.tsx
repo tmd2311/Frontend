@@ -2,10 +2,11 @@
 import React from "react";
 import { Product } from "@/types/product";
 import { useModalContext } from "@/app/context/QuickViewModalContext";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useProducts } from "@/hooks/useProducts";
+import { formatPrice } from "@/utils/helpers";
+
 
 const SingleGridItem = ({ item }: { item: Product }) => {
   const { openModal } = useModalContext();
@@ -91,9 +92,8 @@ const SingleGridItem = ({ item }: { item: Product }) => {
       </h3>
 
       <span className="flex items-center gap-2 font-medium text-lg">
-        <span className="text-dark">{item.price}</span>
-        <span className="text-dark-4 line-through">{item.price}</span>
-        <span className="text-dark">VND</span>
+        <span className="text-dark">{formatPrice(item.price)}</span>
+        <span className="text-dark-4 line-through">{formatPrice(item.price)}</span>
       </span>
     </div>
   );
