@@ -12,8 +12,6 @@ export default function CustomerManagementPage() {
   return (
     <main className="p-8">
       <CustomerManagement
-        customers={mockCustomers}
-        
       />
     </main>
   );

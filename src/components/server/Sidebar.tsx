@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+
 import {
   Package,
   ShoppingCart,
@@ -10,23 +13,40 @@ import {
   LogOut,
   User,
 } from "lucide-react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-
 const Sidebar: React.FC = () => {
+  const router = useRouter();
   const pathname = usePathname();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const [user, setUser] = useState<any>(null);
+  const { logout } = useAuth();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, []);
   console.log("userr", user)
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);  
+  useEffect(() => setMounted(true), []);
 
   const menuItems = [
     { href: "/admin-app/products/management", icon: Package, label: "Quản Lý Sản Phẩm" },
     { href: "/admin-app/inventorys/management", icon: Package, label: "Quản Lý Kho Hàng" },
     { href: "/admin-app/orders", icon: ShoppingCart, label: "Quản Lý Đơn Hàng" },
-    { href: "/admin-app/customers/management", icon: Users, label: "Quản Lý Khách Hàng" },
-    { href: "/admin-app/employees", icon: Users, label: "Quản Lý Nhân Viên" },
+    { href: "/admin-app/customers/management", icon: Users, label: "Quản Lý Người Dùng" },
   ];
+  const handleLogout = () => {
+    logout(
+      { token: localStorage.getItem("token") || "" },
+      () => {
+        router.push("/");
+      },
+      (err: any) => {
+        console.error("Logout failed:", err);
+      }
+    );
+  };
 
   return (
     <div className="w-72 mt-5 h-[730px] bg-gradient-to-b from-gray-50 to-white shadow-xl flex flex-col relative overflow-hidden transition-all duration-500">
@@ -57,7 +77,9 @@ const Sidebar: React.FC = () => {
               </span>
             )}
           </div>
-          <button className="p-2 text-gray-400 transition-all duration-200 hover:text-red-500 hover:scale-110">
+          <button
+            onClick={handleLogout}
+            className="p-2 text-gray-400 transition-all duration-200 hover:text-red-500 hover:scale-110">
             <LogOut size={18} />
           </button>
         </div>
@@ -73,11 +95,10 @@ const Sidebar: React.FC = () => {
               <li key={item.href} className="group">
                 <Link
                   href={item.href}
-                  className={`w-full px-4 py-2.5 rounded-xl flex items-center space-x-3 transition-all duration-300 group-hover:translate-x-1 ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-lg border-r-4 border-blue-400"
-                      : "text-gray-600 hover:bg-gray-100/70 hover:text-gray-900"
-                  }`}
+                  className={`w-full px-4 py-2.5 rounded-xl flex items-center space-x-3 transition-all duration-300 group-hover:translate-x-1 ${isActive
+                    ? "bg-blue-600 text-white shadow-lg border-r-4 border-blue-400"
+                    : "text-gray-600 hover:bg-gray-100/70 hover:text-gray-900"
+                    }`}
                 >
                   <div className="transition-transform duration-200 group-hover:scale-110">
                     <item.icon size={20} />

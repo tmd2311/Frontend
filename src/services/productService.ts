@@ -97,56 +97,78 @@ export const productService = {
       throw error;
     }
   },
-  
- async searchProducts(request: any, page = 0, size = 12) {
-  try {
-    const queryParams = new URLSearchParams({
-      page: page.toString(),
-      size: size.toString(),
-    });
-    if (request.keyword) queryParams.append("keyword", request.keyword);
-    if (request.categoryIds?.length)
-      request.categoryIds.forEach((id: string) =>
-        queryParams.append("categoryIds", id)
-      );
-    if (request.brandIds?.length)
-      request.brandIds.forEach((id: string) =>
-        queryParams.append("brandIds", id)
-      );
-    if (request.minPrice != null)
-      queryParams.append("minPrice", request.minPrice.toString());
-    if (request.maxPrice != null)
-      queryParams.append("maxPrice", request.maxPrice.toString());
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/product/search?${queryParams.toString()}`,
-      {
-        method: "GET",
-        credentials: "include",
+  async searchProducts(request: any, page = 0, size = 12) {
+    try {
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+      });
+      if (request.keyword) queryParams.append("keyword", request.keyword);
+      if (request.categoryIds?.length)
+        request.categoryIds.forEach((id: string) =>
+          queryParams.append("categoryIds", id)
+        );
+      if (request.brandIds?.length)
+        request.brandIds.forEach((id: string) =>
+          queryParams.append("brandIds", id)
+        );
+      if (request.minPrice != null)
+        queryParams.append("minPrice", request.minPrice.toString());
+      if (request.maxPrice != null)
+        queryParams.append("maxPrice", request.maxPrice.toString());
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/product/search?${queryParams.toString()}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      const payload = result.data ?? {};
+
+      return {
+        content: payload.content ?? [],
+        totalElements: payload.total_elements ?? 0,
+        page: payload.current_page ?? page,
+        size,
+        totalPages: payload.total_pages ?? 1,
+        hasNext: payload.has_next ?? false,
+        hasPrevious: payload.has_previous ?? false,
+      };
+    } catch (error) {
+      console.error("Error searching products:", error);
+      throw error;
     }
+  },
+  async createProduct(data: any, token: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/product/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
 
-    const result = await response.json();
-    const payload = result.data ?? {};
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    return {
-      content: payload.content ?? [],
-      totalElements: payload.total_elements ?? 0,
-      page: payload.current_page ?? page,
-      size,
-      totalPages: payload.total_pages ?? 1,
-      hasNext: payload.has_next ?? false,
-      hasPrevious: payload.has_previous ?? false,
-    };
-  } catch (error) {
-    console.error("Error searching products:", error);
-    throw error;
-  }
-}
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating product:", error);
+      throw error;
+    }
+  },
+
 
 
 };

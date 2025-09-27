@@ -18,7 +18,20 @@ const SingleGridItem = ({ item }: { item: Product }) => {
   return (
     <div className="group">
       <div className="relative overflow-hidden flex items-center justify-center rounded-lg bg-white shadow-1 min-h-[270px] mb-4">
-        <Image src={item.thumbnailUrl} alt="" width={250} height={250} />
+        {item.thumbnailUrl ? (
+          <Image
+            src={item.thumbnailUrl}
+            alt={item.name || "Product image"}
+            width={250}
+            height={250}
+            className="object-contain"
+          />
+        ) : (
+          <div className="w-[250px] h-[250px] flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
+            No Image
+          </div>
+        )}
+
 
         <div className="absolute left-0 bottom-0 translate-y-full w-full flex items-center justify-center gap-2.5 pb-5 ease-linear duration-200 group-hover:translate-y-0">
           <button
@@ -51,14 +64,14 @@ const SingleGridItem = ({ item }: { item: Product }) => {
           </button>
 
           <button
-         
+
             className="inline-flex font-medium text-custom-sm py-[7px] px-5 rounded-[5px] bg-blue text-white ease-out duration-200 hover:bg-blue-dark"
           >
             Add to cart
           </button>
 
           <button
-          
+
             aria-label="button for favorite select"
             id="favOne"
             className="flex items-center justify-center w-9 h-9 rounded-[5px] shadow-1 ease-out duration-200 text-dark bg-white hover:text-blue"

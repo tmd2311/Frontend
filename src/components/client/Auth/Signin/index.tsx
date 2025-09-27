@@ -42,7 +42,12 @@ const Signin = () => {
       formData,
       () => {
         toast.success("Login successful!");
-        router.push("/admin-app");
+        if(localStorage.getItem("roles")?.includes("Administrator")){
+          router.push("/admin-app");
+        }
+        else{
+          router.push("/");
+        }
       },
       (error) => {
         toast.error("Login failed!");

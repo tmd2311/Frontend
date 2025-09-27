@@ -15,34 +15,54 @@ const Header = () => {
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
   const { openCartModal } = useCartModalContext();
-  
-  
-  const { user, token, isLogin } = useSelector((state: RootState) => state.auth);
 
-
+  const [user, setUser] = useState<any>(null);
+  const [isLogin, setIsLogin] = useState(false);
   const dispatch = useAppDispatch();
 
-  const handleLogout = (e) => {
-       e.preventDefault();       
-          dispatch(
-            logoutAction(  
-              {token},
-              () => {             
-                toast.success("🎉Logout thành công");
-                setTimeout(() => {
-                  router.push("/signin");
-                }, 2000);
-              },
-              (err) => {
-                toast.error(`Logout thất bại: ${err}`);
-              }
-            )
-          );
-  }
-  
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedIsLogin = localStorage.getItem("isLogin");
 
-  const product = []
-  const totalPrice = 0
+    if (storedUser && storedIsLogin === "true") {
+      setUser(JSON.parse(storedUser));
+      setIsLogin(true);
+    } else {
+      setUser(null);
+      setIsLogin(false);
+    }
+  }, []);
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    dispatch(
+      logoutAction(
+        { token: localStorage.getItem("token") }, // lấy token từ localStorage
+        () => {
+          // clear localStorage
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("roles");
+          localStorage.setItem("isLogin", "false");
+
+          setUser(null);
+          setIsLogin(false);
+
+          toast.success("Logout thành công");
+          setTimeout(() => {
+            router.push("/signin");
+          }, 2000);
+        },
+        (err: any) => {
+          toast.error(`Logout thất bại: ${err}`);
+        }
+      )
+    );
+  };
+
+  const product = [];
+  const totalPrice = 0;
 
   const handleOpenCartModal = () => {
     openCartModal();
@@ -58,21 +78,22 @@ const Header = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
-  });
+    return () => {
+      window.removeEventListener("scroll", handleStickyMenu);
+    };
+  }, []);
 
 
   return (
     <header
-      className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${
-        stickyMenu && "shadow"
-      }`}
+      className={`fixed left-0 top-0 w-full z-9999 bg-white transition-all ease-in-out duration-300 ${stickyMenu && "shadow"
+        }`}
     >
       <div className="max-w-[1170px] mx-auto px-4 sm:px-7.5 xl:px-0">
         {/* <!-- header top start --> */}
         <div
-          className={`flex flex-col lg:flex-row gap-5 items-end lg:items-center xl:justify-between ease-out duration-200 ${
-            stickyMenu ? "py-4" : "py-6"
-          }`}
+          className={`flex flex-col lg:flex-row gap-5 items-end lg:items-center xl:justify-between ease-out duration-200 ${stickyMenu ? "py-4" : "py-6"
+            }`}
         >
           {/* <!-- header top left --> */}
           <div className="xl:w-auto flex-col sm:flex-row w-full flex sm:justify-between sm:items-center gap-5 sm:gap-10">
@@ -88,8 +109,8 @@ const Header = () => {
             <div className="max-w-[475px] w-full">
               <form>
                 <div className="flex items-center">
-                
-                 
+
+
                 </div>
               </form>
             </div>
@@ -105,7 +126,7 @@ const Header = () => {
 
             <div className="flex w-full lg:w-auto justify-between items-center gap-5">
               <div className="flex items-center gap-5">
-                <Link href="/signin" className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5">
                   <svg
                     width="24"
                     height="24"
@@ -116,27 +137,37 @@ const Header = () => {
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
-                      d="M12 1.25C9.37666 1.25 7.25001 3.37665 7.25001 6C7.25001 8.62335 9.37666 10.75 12 10.75C14.6234 10.75 16.75 8.62335 16.75 6C16.75 3.37665 14.6234 1.25 12 1.25ZM8.75001 6C8.75001 4.20507 10.2051 2.75 12 2.75C13.7949 2.75 15.25 4.20507 15.25 6C15.25 7.79493 13.7949 9.25 12 9.25C10.2051 9.25 8.75001 7.79493 8.75001 6Z"
+                      d="M12 1.25C9.37666 1.25 7.25 3.37665 7.25 6C7.25 8.62335 9.37666 10.75 12 10.75C14.6234 10.75 16.75 8.62335 16.75 6C16.75 3.37665 14.6234 1.25 12 1.25ZM8.75 6C8.75 4.20507 10.2051 2.75 12 2.75C13.7949 2.75 15.25 4.20507 15.25 6C15.25 7.79493 13.7949 9.25 12 9.25C10.2051 9.25 8.75 7.79493 8.75 6Z"
                       fill="#3C50E0"
                     />
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"
-                      d="M12 12.25C9.68646 12.25 7.55494 12.7759 5.97546 13.6643C4.4195 14.5396 3.25001 15.8661 3.25001 17.5L3.24995 17.602C3.24882 18.7638 3.2474 20.222 4.52642 21.2635C5.15589 21.7761 6.03649 22.1406 7.22622 22.3815C8.41927 22.6229 9.97424 22.75 12 22.75C14.0258 22.75 15.5808 22.6229 16.7738 22.3815C17.9635 22.1406 18.8441 21.7761 19.4736 21.2635C20.7526 20.222 20.7512 18.7638 20.7501 17.602L20.75 17.5C20.75 15.8661 19.5805 14.5396 18.0246 13.6643C16.4451 12.7759 14.3136 12.25 12 12.25ZM4.75001 17.5C4.75001 16.6487 5.37139 15.7251 6.71085 14.9717C8.02681 14.2315 9.89529 13.75 12 13.75C14.1047 13.75 15.9732 14.2315 17.2892 14.9717C18.6286 15.7251 19.25 16.6487 19.25 17.5C19.25 18.8078 19.2097 19.544 18.5264 20.1004C18.1559 20.4022 17.5365 20.6967 16.4762 20.9113C15.4193 21.1252 13.9742 21.25 12 21.25C10.0258 21.25 8.58075 21.1252 7.5238 20.9113C6.46354 20.6967 5.84413 20.4022 5.4736 20.1004C4.79033 19.544 4.75001 18.8078 4.75001 17.5Z"
+                      d="M12 12.25C9.68646 12.25 7.55494 12.7759 5.97546 13.6643C4.4195 14.5396 3.25 15.8661 3.25 17.5V17.602C3.24882 18.7638 3.2474 20.222 4.52642 21.2635C5.15589 21.7761 6.03649 22.1406 7.22622 22.3815C8.41927 22.6229 9.97424 22.75 12 22.75C14.0258 22.75 15.5808 22.6229 16.7738 22.3815C17.9635 22.1406 18.8441 21.7761 19.4736 21.2635C20.7526 20.222 20.7512 18.7638 20.7501 17.602V17.5C20.7501 15.8661 19.5805 14.5396 18.0246 13.6643C16.4451 12.7759 14.3136 12.25 12 12.25Z"
                       fill="#3C50E0"
                     />
                   </svg>
 
                   <div>
-                    <span className="block text-2xs text-dark-4 uppercase">
-                       {user && isLogin ? user.account: "account"}
-                    </span>
-                    <p className="font-medium text-custom-sm text-dark">
-                        {user && isLogin ? 
-                              <button onClick={handleLogout}> Logout </button>:  <button  >Login</button> }
-                    </p>
+                    {isLogin && user ? (
+                      <>
+                        <span className="block text-2xs text-dark-4 uppercase">
+                          {user.fullName}
+                        </span>
+                        <button
+                          onClick={handleLogout}
+                          className="font-medium text-custom-sm text-red-500 hover:underline"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <Link href="/signin" className="font-medium text-custom-sm text-blue-600 hover:underline">
+                        Login
+                      </Link>
+                    )}
                   </div>
-                </Link>
+                </div>
 
                 <button
                   onClick={handleOpenCartModal}
@@ -200,32 +231,27 @@ const Header = () => {
                 <span className="block relative cursor-pointer w-5.5 h-5.5">
                   <span className="du-block absolute right-0 w-full h-full">
                     <span
-                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${
-                        !navigationOpen && "!w-full delay-300"
-                      }`}
+                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-[0] ${!navigationOpen && "!w-full delay-300"
+                        }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${
-                        !navigationOpen && "!w-full delay-400"
-                      }`}
+                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-150 ${!navigationOpen && "!w-full delay-400"
+                        }`}
                     ></span>
                     <span
-                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${
-                        !navigationOpen && "!w-full delay-500"
-                      }`}
+                      className={`block relative top-0 left-0 bg-dark rounded-sm w-0 h-0.5 my-1 ease-in-out duration-200 delay-200 ${!navigationOpen && "!w-full delay-500"
+                        }`}
                     ></span>
                   </span>
 
                   <span className="block absolute right-0 w-full h-full rotate-45">
                     <span
-                      className={`block bg-dark rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${
-                        !navigationOpen && "!h-0 delay-[0] "
-                      }`}
+                      className={`block bg-dark rounded-sm ease-in-out duration-200 delay-300 absolute left-2.5 top-0 w-0.5 h-full ${!navigationOpen && "!h-0 delay-[0] "
+                        }`}
                     ></span>
                     <span
-                      className={`block bg-dark rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${
-                        !navigationOpen && "!h-0 dealy-200"
-                      }`}
+                      className={`block bg-dark rounded-sm ease-in-out duration-200 delay-400 absolute left-0 top-2.5 w-full h-0.5 ${!navigationOpen && "!h-0 dealy-200"
+                        }`}
                     ></span>
                   </span>
                 </span>

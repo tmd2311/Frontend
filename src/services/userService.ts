@@ -1,4 +1,4 @@
-import {BASE_AUTH_API_URL } from "@/utils/configAPI";
+import { BASE_AUTH_API_URL } from "@/utils/configAPI";
 
 export interface UserInfo {
   code: string;
@@ -41,7 +41,6 @@ export async function getAllUsers(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      credentials: "include",
     }
   );
 
@@ -53,7 +52,7 @@ export async function getAllUsers(
   const payload = result.data ?? {};
 
   return {
-    content: payload.content ?? [],
+    content: (payload.content as UserInfo[]) ?? [],
     totalPages: payload.total_pages ?? 1,
     hasNext: payload.has_next ?? false,
     hasPrevious: payload.has_previous ?? false,

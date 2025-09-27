@@ -112,7 +112,7 @@ export const useProducts = (page = 0, size = 12) => {
       setLoading(true);
       setError(null);
       const result = await productService.searchProducts(searchRequest, pageParam, sizeParam);
-      
+
       setProducts(result.content);
       setMeta({
         page: result.page,
@@ -130,6 +130,24 @@ export const useProducts = (page = 0, size = 12) => {
       setLoading(false);
     }
   };
+  const createProduct = async (data: any, token: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const created = await productService.createProduct(data, token);
+
+      setProducts((prev) => [created, ...prev]);
+
+      return created;
+    } catch (err: any) {
+      setError(err.message || "Lỗi khi tạo sản phẩm");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     fetchProducts();
@@ -149,5 +167,6 @@ export const useProducts = (page = 0, size = 12) => {
     errorDetail,
     getProductById,
     searchProducts,
+    createProduct,
   };
 };

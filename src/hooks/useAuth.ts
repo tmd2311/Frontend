@@ -27,23 +27,29 @@ export const useAuth = () => {
     async (data: LoginRequest, onSuccess?: any, onError?: any) => {
       try {
         await dispatch<any>(
-          login(data, (res: any) => {
-            // Map dữ liệu từ backend trả về
-            const mappedUser = {
-              fullName: res.data.fullName || res.name || "No name",
-              email: res.data.email || "",
-              token: res.data.token,
-              roles: res.data.roleNames || [],
-            };
+          login(
+            data,
+            (res: any) => {
+              // Map dữ liệu từ backend trả về
+              const mappedUser = {
+                fullName: res.data.fullName || res.name || "No name",
+                email: res.data.email || "",
+                token: res.data.token,
+                roles: res.data.roleNames || [],
+              };
 
-            // Lưu vào localStorage
-            localStorage.setItem("token", mappedUser.token);
-            localStorage.setItem("roles", JSON.stringify(mappedUser.roles));
-            localStorage.setItem("user", JSON.stringify(mappedUser));
-            console.log("Userxxxx: ", mappedUser)
+              // Lưu vào localStorage
+              localStorage.setItem("token", mappedUser.token);
+              localStorage.setItem("roles", JSON.stringify(mappedUser.roles));
+              localStorage.setItem("user", JSON.stringify(mappedUser));
+              localStorage.setItem("isLogin", "true"); // ✅ lưu trạng thái đăng nhập
 
-            if (onSuccess) onSuccess(mappedUser);
-          }, onError)
+              console.log("Userxxxx: ", mappedUser);
+
+              if (onSuccess) onSuccess(mappedUser);
+            },
+            onError
+          )
         );
       } catch (err) {
         if (onError) onError(err);
@@ -63,14 +69,21 @@ export const useAuth = () => {
   // ================== LOGOUT ==================
   const handleLogout = useCallback(
     (logoutRequest: LogoutRequest, onSuccess?: any, onError?: any) => {
-      dispatch<any>(logoutAction(logoutRequest, () => {
-        // Clear localStorage
-        localStorage.removeItem("token");
-        localStorage.removeItem("roles");
-        localStorage.removeItem("user");
+      dispatch<any>(
+        logoutAction(
+          logoutRequest,
+          () => {
+            // Clear localStorage
+            localStorage.removeItem("token");
+            localStorage.removeItem("roles");
+            localStorage.removeItem("user");
+            localStorage.setItem("isLogin", "false"); // ✅ clear login state
 
-        if (onSuccess) onSuccess();
-      }, onError));
+            if (onSuccess) onSuccess();
+          },
+          onError
+        )
+      );
     },
     [dispatch]
   );
@@ -91,16 +104,7 @@ export const useAuth = () => {
     [dispatch]
   );
 
-  // ================== HYDRATE AUTH ==================
-  const handleHydrateAuth = useCallback(() => {
-    const token = localStorage.getItem("token");
-    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
 
-    dispatch<any>(
-      hydrateAuth()
-    );
-  }, [dispatch]);
 
   return {
     user,
@@ -114,6 +118,5 @@ export const useAuth = () => {
     logout: handleLogout,
     updateUser: handleUpdateUser,
     changePassword: handleChangePassword,
-    hydrateAuth: handleHydrateAuth,
   };
 };

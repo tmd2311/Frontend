@@ -16,6 +16,7 @@ import { useBrands } from "@/hooks/useBrand";
 import { useProducts } from "@/hooks/useProducts";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useRouter } from "next/navigation";
 
 interface ProductManagementProps {
   products: Product[];
@@ -25,6 +26,7 @@ interface ProductManagementProps {
 const ProductManagement: React.FC<ProductManagementProps> = ({
   products, onDeleteProduct,
 }) => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
@@ -48,6 +50,10 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
       console.error("Lỗi khi xóa sản phẩm:", err);
       alert(err.message || "Xóa sản phẩm thất bại!");
     }
+  };
+
+  const handleAddProduct = () => {
+    router.push("/admin-app/products/create"); 
   };
 
   const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({
@@ -196,7 +202,9 @@ const ProductManagement: React.FC<ProductManagementProps> = ({
         <h2 className="text-xl font-semibold text-gray-900">
           Quản Lý Sản Phẩm
         </h2>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors shadow-sm">
+        <button 
+        onClick={handleAddProduct} 
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors shadow-sm">
           <Plus size={18} />
           <span>Thêm Sản Phẩm</span>
         </button>
