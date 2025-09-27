@@ -1,4 +1,4 @@
-import { BASE_API_URL } from "@/utils/configAPI";
+import {BASE_AUTH_API_URL } from "@/utils/configAPI";
 import {
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
@@ -25,7 +25,7 @@ export const register = (data: Register, onSuccess?: any, onError?: any) => {
   return async (dispatch) => {
     dispatch({ type: REGISTER_REQUEST });
     try {
-      const res = await fetch(`${BASE_API_URL}/api/auth/register`, {
+      const res = await fetch(`${BASE_AUTH_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -53,7 +53,7 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
   return async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
     try {
-      const res = await fetch(`${BASE_API_URL}/services/auth-service/api/auth/login`, {
+      const res = await fetch(`${BASE_AUTH_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -67,7 +67,24 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
 
       if (resData.data?.token) {
         localStorage.setItem("token", resData.data.token);
-        dispatch({ type: LOGIN_SUCCESS, payload: resData.data });
+        if (resData.data?.roleNames) {
+          localStorage.setItem("roles", JSON.stringify(resData.data.roleNames));
+        }
+        dispatch({
+          type: LOGIN_SUCCESS,
+          payload: {
+            token: resData.data.token,
+            roles: resData.data.roleNames,
+            user: {
+              code: resData.data.code,
+              account: resData.data.account,
+              email: resData.data.email,
+              fullName: resData.data.fullName,
+              avatarUrl: resData.data.avatarUrl,
+            },
+          },
+        });
+
         onSuccess?.(resData);
       } else {
         throw new Error("Tài khoản hoặc mật khẩu sai");
@@ -85,7 +102,7 @@ export const updateUser = (formData: FormData, onSuccess?: any, onError?: any) =
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_API_URL}/api/users/update`, {
+      const res = await fetch(`${BASE_AUTH_API_URL}/api/users/update`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -109,7 +126,7 @@ export const logoutAction = (logoutRequest : LogoutRequest, onSuccess?: any, onE
   dispatch({ type: LOGOUT_REQUEST });
   try {
     
-      const res = await fetch(`${BASE_API_URL}/api/logout`, {
+      const res = await fetch(`${BASE_AUTH_API_URL}/api/logout`, {
         method: "POST",
         headers: { Authorization: `Bearer ${logoutRequest.token}` },
       });
@@ -132,7 +149,7 @@ export const changePassword = (data: any, onSuccess?: any, onError?: any) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_API_URL}/api/auth/change-password`, {
+      const res = await fetch(`${BASE_AUTH_API_URL}/api/auth/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { productService } from "../services/productService";
+import { ProductSearchRequest } from "@/types/product";
 
 export const useProducts = (page = 0, size = 12) => {
   const [products, setProducts] = useState<any[]>([]);
@@ -106,6 +107,29 @@ export const useProducts = (page = 0, size = 12) => {
     }
   }, []);
 
+  const searchProducts = async (searchRequest: ProductSearchRequest, pageParam = page, sizeParam = size) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await productService.searchProducts(searchRequest, pageParam, sizeParam);
+      
+      setProducts(result.content);
+      setMeta({
+        page: result.page,
+        size: result.size,
+        totalPages: result.totalPages ?? 1,
+        hasNext: result.hasNext ?? false,
+        hasPrevious: result.hasPrevious ?? false,
+      });
+
+      return result.content;
+    } catch (err: any) {
+      setError(err.message || "Lỗi khi tìm kiếm sản phẩm");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -124,5 +148,6 @@ export const useProducts = (page = 0, size = 12) => {
     loadingDetail,
     errorDetail,
     getProductById,
+    searchProducts,
   };
 };

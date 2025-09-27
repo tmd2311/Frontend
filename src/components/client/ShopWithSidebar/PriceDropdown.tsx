@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 
-const PriceDropdown = () => {
+const PriceDropdown = ({ priceRange, onPriceChange }) => {
   const [toggleDropdown, setToggleDropdown] = useState(true);
+  const [localPriceRange, setLocalPriceRange] = useState(priceRange);
 
-  const [selectedPrice, setSelectedPrice] = useState({
-    from: 0,
-    to: 100000000,
-  });
+  // Sync local state with props when reset occurs
+  useEffect(() => {
+    setLocalPriceRange(priceRange);
+  }, [priceRange]);
+
+  const handleSliderChange = (values) => {
+    const newRange = {
+      from: Math.floor(values[0]),
+      to: Math.ceil(values[1])
+    };
+    setLocalPriceRange(newRange);
+    onPriceChange(newRange);
+  };
 
   return (
     <div className="bg-white shadow-1 rounded-lg">
@@ -56,25 +66,20 @@ const PriceDropdown = () => {
               step={1000}
               min={0}
               max={100000000}
-              defaultValue={[selectedPrice.from, selectedPrice.to]}
-              onInput={(e) =>
-                setSelectedPrice({
-                  from: Math.floor(e[0]),
-                  to: Math.ceil(e[1]),
-                })
-              }
+              value={[localPriceRange.from, localPriceRange.to]}
+              onInput={handleSliderChange}
             />
 
             <div className="price-amount flex items-center justify-between pt-4">
               <div className="text-custom-xs text-dark-4 flex rounded border border-gray-3/80">
                 <span id="minAmount" className="block px-3 py-1.5">
-                  {selectedPrice.from.toLocaleString()}
+                  {localPriceRange.from.toLocaleString()}
                 </span>
               </div>
 
               <div className="text-custom-xs text-dark-4 flex rounded border border-gray-3/80">
                 <span id="maxAmount" className="block px-3 py-1.5">
-                  {selectedPrice.to.toLocaleString()}
+                  {localPriceRange.to.toLocaleString()}
                 </span>
               </div>
             </div>

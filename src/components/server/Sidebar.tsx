@@ -16,7 +16,6 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
 
   const menuItems = [
-    { href: "/admin-app/dashboard", icon: BarChart3, label: "Dashboard Tổng Quan" },
     { href: "/admin-app/products/management", icon: Package, label: "Quản Lý Sản Phẩm" },
     { href: "/admin-app/inventorys/management", icon: Package, label: "Quản Lý Kho Hàng" },
     { href: "/admin-app/orders", icon: ShoppingCart, label: "Quản Lý Đơn Hàng" },

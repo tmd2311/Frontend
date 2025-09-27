@@ -12,3 +12,12 @@ export type Product = {
   price: number;
   thumbnailUrl?: string | null;
 };
+
+export interface ProductSearchRequest {
+  keyword?: string;            
+  categoryIds?: string[];
+  brandIds?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+}
+

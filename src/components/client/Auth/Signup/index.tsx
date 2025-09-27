@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";   
-import Breadcrumb from "@/components/client/Common/Breadcrumb";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "@/redux/store";
 import { Register } from "@/types/Client/Auth/Register";
@@ -17,7 +16,7 @@ const Signup: React.FC = () => {
     account: "",
     password: "",
     email: "",
-    fullname: "",
+    fullName: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,9 +32,9 @@ const Signup: React.FC = () => {
       register(
         formData,
         () => {
-           localStorage.setItem("account", formData.account); 
-           localStorage.setItem("password", formData.password)
-          toast.success("🎉 Đăng kí thành công");
+           localStorage.setItem("account", formData.account);
+           localStorage.setItem("password", formData.password);
+          toast.success("Đăng kí thành công");
           setTimeout(() => {
             router.push("/signin");
           }, 2000);
@@ -49,9 +48,6 @@ const Signup: React.FC = () => {
 
   return (
     <>
-      {/* Breadcrumb */}
-      <Breadcrumb title="Signup" pages={["Signup"]} />
-
       <section className="overflow-hidden py-20 bg-gray-2">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="max-w-[570px] w-full mx-auto rounded-xl bg-white shadow-1 p-4 sm:p-7.5 xl:p-11">
@@ -72,9 +68,9 @@ const Signup: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  name="fullname"
-                  id="fullname"
-                  value={formData.fullname}
+                  name="fullName"
+                  id="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required

@@ -38,7 +38,7 @@ const QuickViewModal: React.FC = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-screen z-50 bg-dark/70 overflow-y-auto sm:px-8 px-4 py-5">
+    <div className="fixed top-30 left-0 w-full h-screen z-50 bg-dark/70 overflow-y-auto sm:px-8 px-4 py-5">
       <div className="flex items-center justify-center">
         <div className="w-full max-w-[1100px] bg-white rounded-xl shadow-3 p-7.5 relative modal-content">
           <button

@@ -1,26 +1,15 @@
-
 import { Metadata } from "next";
-import { mockCustomers, mockOrders, mockProducts } from "../../utils/mockData";
-import { DashboardOverview } from "../../components/server/DashboardOverview";
+import ProductPageWrapper from "@/components/client/ProductPageWrapper";
+
 export const metadata: Metadata = {
-  title: "Proshop - Admin Dashboard",
-  description: "This is the main dashboard of Proshop Admin",
+  title: "Proshop - Product Management",
+  description: "Manage products in Proshop",
 };
 
-export default function HomePage() {
-  const stats = {
-    totalRevenue: mockProducts.reduce((sum, p) => sum + p.price * (p.soldCount || 0), 0),
-    revenueGrowth: 12.5,
-    totalCustomers: mockCustomers.length,
-    customerGrowth: 8.2,
-    totalOrders: mockOrders.length,
-    orderGrowth: 15.3,
-    totalProducts: mockProducts.filter(p => p.isActive).length
-  };
-
+export default function ProductPage() {
   return (
     <main className="p-8">
-      <DashboardOverview stats={stats} products={mockProducts} />
+      <ProductPageWrapper />
     </main>
   );
 }

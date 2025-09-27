@@ -71,7 +71,7 @@ export const productService = {
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      }
       return await response.json();
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -97,6 +97,58 @@ export const productService = {
       throw error;
     }
   },
+  
+ async searchProducts(request: any, page = 0, size = 12) {
+  try {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+    if (request.keyword) queryParams.append("keyword", request.keyword);
+    if (request.categoryIds?.length)
+      request.categoryIds.forEach((id: string) =>
+        queryParams.append("categoryIds", id)
+      );
+    if (request.brandIds?.length)
+      request.brandIds.forEach((id: string) =>
+        queryParams.append("brandIds", id)
+      );
+    if (request.minPrice != null)
+      queryParams.append("minPrice", request.minPrice.toString());
+    if (request.maxPrice != null)
+      queryParams.append("maxPrice", request.maxPrice.toString());
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/product/search?${queryParams.toString()}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const payload = result.data ?? {};
+
+    return {
+      content: payload.content ?? [],
+      totalElements: payload.total_elements ?? 0,
+      page: payload.current_page ?? page,
+      size,
+      totalPages: payload.total_pages ?? 1,
+      hasNext: payload.has_next ?? false,
+      hasPrevious: payload.has_previous ?? false,
+    };
+  } catch (error) {
+    console.error("Error searching products:", error);
+    throw error;
+  }
+}
+
+
 };
 
 

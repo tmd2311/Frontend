@@ -2,23 +2,22 @@
 
 import { useState } from "react";
 
-const CategoryItem = ({ category }) => {
-  const [selected, setSelected] = useState(false);
+const CategoryItem = ({ category, isSelected, onSelectionChange }) => {
   return (
     <button
       className={`${
-        selected && "text-blue"
+        isSelected && "text-blue"
       } group flex items-center justify-between ease-out duration-200 hover:text-blue `}
-      onClick={() => setSelected(!selected)}
+      onClick={() => onSelectionChange(category.id, !isSelected)}
     >
       <div className="flex items-center gap-2">
         <div
           className={`cursor-pointer flex items-center justify-center rounded w-4 h-4 border ${
-            selected ? "border-blue bg-blue" : "bg-white border-gray-3"
+            isSelected ? "border-blue bg-blue" : "bg-white border-gray-3"
           }`}
         >
           <svg
-            className={selected ? "block" : "hidden"}
+            className={isSelected ? "block" : "hidden"}
             width="10"
             height="10"
             viewBox="0 0 10 10"
@@ -41,7 +40,7 @@ const CategoryItem = ({ category }) => {
   );
 };
 
-const CategoryDropdown = ({ categories }) => {
+const CategoryDropdown = ({ categories, selectedCategories, onCategoryChange }) => {
   const [toggleDropdown, setToggleDropdown] = useState(true);
 
   return (
@@ -80,15 +79,19 @@ const CategoryDropdown = ({ categories }) => {
         </button>
       </div>
 
-      {/* dropdown && 'shadow-filter */}
-      {/* <!-- dropdown menu --> */}
+      {/* dropdown menu */}
       <div
         className={`flex-col gap-3 py-6 pl-6 pr-5.5 ${
           toggleDropdown ? "flex" : "hidden"
         }`}
       >
-        {categories.map((category, key) => (
-          <CategoryItem key={key} category={category} />
+        {categories.map((category) => (
+          <CategoryItem 
+            key={category.id} 
+            category={category} 
+            isSelected={selectedCategories.has(category.id)}
+            onSelectionChange={onCategoryChange}
+          />
         ))}
       </div>
     </div>

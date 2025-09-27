@@ -1,19 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "../Common/Breadcrumb";
 import CustomSelect from "./CustomSelect";
 import CategoryDropdown from "./CategoryDropdown";
 import PriceDropdown from "./PriceDropdown";
-import shopData from "../Shop/shopData";
 import SingleGridItem from "../Shop/SingleGridItem";
 import SingleListItem from "../Shop/SingleListItem";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
+import BrandDropdown from "./BrandDropdown";
+import { useBrands } from "@/hooks/useBrand";
+import { ProductSearchRequest } from "@/types/product";
 
 const ShopWithSidebar = () => {
   const [productStyle, setProductStyle] = useState("grid");
   const [productSidebar, setProductSidebar] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
+
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
+  const [priceRange, setPriceRange] = useState({ from: 0, to: 100000000 });
+  const [resetKey, setResetKey] = useState(0);
+
+  const searchRequest: ProductSearchRequest = {
+    keyword: undefined,
+    categoryIds: Array.from(selectedCategories) as string[],
+    brandIds: Array.from(selectedBrands) as string[],
+    minPrice: priceRange.from,
+    maxPrice: priceRange.to,
+  };
+
 
   const handleStickyMenu = () => {
     if (window.scrollY >= 80) {
@@ -29,10 +44,52 @@ const ShopWithSidebar = () => {
     { label: "Old Products", value: "2" },
   ];
 
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { categories, loading: categoriesLoading, error: categoriesError, } = useCategories();
+  const { brands, loading: brandsLoading, error: brandsError } = useBrands();
   const [page, setPage] = useState(0);
   const size = 12;
-  const { products, meta, loading } = useProducts(page, size);
+  const { products, meta, loading, searchProducts } = useProducts(page, size);
+
+  const handleResetFilters = () => {
+    setSelectedCategories(new Set());
+    setSelectedBrands(new Set());
+    setPriceRange({ from: 0, to: 100000000 });
+    setResetKey(prev => prev + 1);
+    setPage(0);
+  };
+  const handleCategoryChange = (categoryId, isSelected) => {
+    setSelectedCategories(prev => {
+      const newSet = new Set(prev);
+      if (isSelected) {
+        newSet.add(categoryId);
+      } else {
+        newSet.delete(categoryId);
+      }
+      return newSet;
+    });
+    setPage(0);
+  };
+
+  const handleBrandChange = (brandId, isSelected) => {
+    setSelectedBrands(prev => {
+      const newSet = new Set(prev);
+      if (isSelected) {
+        newSet.add(brandId);
+      } else {
+        newSet.delete(brandId);
+      }
+      return newSet;
+    });
+    setPage(0);
+  };
+  const handlePriceChange = (newPriceRange) => {
+    setPriceRange(newPriceRange);
+    setPage(0);
+  };
+  const hasActiveFilters = selectedCategories.size > 0 ||
+    selectedBrands.size > 0 ||
+    priceRange.from > 0 ||
+    priceRange.to < 100000000;
 
 
   useEffect(() => {
@@ -54,28 +111,32 @@ const ShopWithSidebar = () => {
     };
   });
 
+  useEffect(() => {
+    if (hasActiveFilters) {
+      searchProducts(searchRequest, page, size);
+    } else {
+      searchProducts({}, page, size);
+    }
+  }, [selectedCategories, selectedBrands, priceRange, page]);
+
   return (
     <>
-      <Breadcrumb
-        title={"Explore All Products"}
-        pages={["shop", "/", "shop with sidebar"]}
-      />
       <section className="overflow-hidden relative pb-20 pt-5 lg:pt-20 xl:pt-28 bg-[#f3f4f6]">
         <div className="max-w-[1170px] w-full mx-auto px-4 sm:px-8 xl:px-0">
           <div className="flex gap-7.5">
             {/* <!-- Sidebar Start --> */}
             <div
               className={`sidebar-content fixed xl:z-1 z-9999 left-0 top-0 xl:translate-x-0 xl:static max-w-[310px] xl:max-w-[270px] w-full ease-out duration-200 ${productSidebar
-                  ? "translate-x-0 bg-white p-5 h-screen overflow-y-auto"
-                  : "-translate-x-full"
+                ? "translate-x-0 bg-white p-5 h-screen overflow-y-auto"
+                : "-translate-x-full"
                 }`}
             >
               <button
                 onClick={() => setProductSidebar(!productSidebar)}
                 aria-label="button for product sidebar toggle"
                 className={`xl:hidden absolute -right-12.5 sm:-right-8 flex items-center justify-center w-8 h-8 rounded-md bg-white shadow-1 ${stickyMenu
-                    ? "lg:top-20 sm:top-34.5 top-35"
-                    : "lg:top-24 sm:top-39 top-37"
+                  ? "lg:top-20 sm:top-34.5 top-35"
+                  : "lg:top-24 sm:top-39 top-37"
                   }`}
               >
                 <svg
@@ -107,15 +168,99 @@ const ShopWithSidebar = () => {
                   <div className="bg-white shadow-1 rounded-lg py-4 px-5">
                     <div className="flex items-center justify-between">
                       <p>Filters:</p>
-                      <button className="text-blue">Clean All</button>
+                      <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className={`text-blue hover:text-blue-dark transition-colors ${!hasActiveFilters ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        disabled={!hasActiveFilters}
+                      >
+                        Clean All
+                      </button>
                     </div>
+
+                    {/* Active filters display */}
+                    {hasActiveFilters && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from(selectedCategories).map(categoryId => {
+                            const category = categories.find(c => c.id === categoryId);
+                            return category ? (
+                              <span
+                                key={`category-${categoryId}`}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-blue/10 text-blue text-xs rounded"
+                              >
+                                {category.name}
+                                <button
+                                  type="button"
+                                  onClick={() => handleCategoryChange(categoryId, false)}
+                                  className="hover:bg-blue/20 rounded-full p-0.5"
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                  </svg>
+                                </button>
+                              </span>
+                            ) : null;
+                          })}
+
+                          {Array.from(selectedBrands).map(brandId => {
+                            const brand = brands.find(b => b.id === brandId);
+                            return brand ? (
+                              <span
+                                key={`brand-${brandId}`}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
+                              >
+                                {brand.name}
+                                <button
+                                  type="button"
+                                  onClick={() => handleBrandChange(brandId, false)}
+                                  className="hover:bg-green-200 rounded-full p-0.5"
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                  </svg>
+                                </button>
+                              </span>
+                            ) : null;
+                          })}
+
+                          {(priceRange.from > 0 || priceRange.to < 100000000) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">
+                              {priceRange.from.toLocaleString()} - {priceRange.to.toLocaleString()} VND
+                              <button
+                                type="button"
+                                onClick={() => handlePriceChange({ from: 0, to: 100000000 })}
+                                className="hover:bg-orange-200 rounded-full p-0.5"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                </svg>
+                              </button>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* <!-- category box --> */}
-                  <CategoryDropdown categories={categories} />
-
-                  {/* // <!-- price range box --> */}
-                  <PriceDropdown />
+                  <CategoryDropdown
+                    key={`categories-${resetKey}`}
+                    categories={categories}
+                    selectedCategories={selectedCategories}
+                    onCategoryChange={handleCategoryChange}
+                  />
+                  <BrandDropdown
+                    key={`brands-${resetKey}`}
+                    brands={brands}
+                    selectedBrands={selectedBrands}
+                    onBrandChange={handleBrandChange}
+                  />
+                  <PriceDropdown
+                    key={`price-${resetKey}`}
+                    priceRange={priceRange}
+                    onPriceChange={handlePriceChange}
+                  />
                 </div>
               </form>
             </div>
@@ -141,8 +286,8 @@ const ShopWithSidebar = () => {
                       onClick={() => setProductStyle("grid")}
                       aria-label="button for product grid tab"
                       className={`${productStyle === "grid"
-                          ? "bg-blue border-blue text-white"
-                          : "text-dark bg-gray-1 border-gray-3"
+                        ? "bg-blue border-blue text-white"
+                        : "text-dark bg-gray-1 border-gray-3"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -184,8 +329,8 @@ const ShopWithSidebar = () => {
                       onClick={() => setProductStyle("list")}
                       aria-label="button for product list tab"
                       className={`${productStyle === "list"
-                          ? "bg-blue border-blue text-white"
-                          : "text-dark bg-gray-1 border-gray-3"
+                        ? "bg-blue border-blue text-white"
+                        : "text-dark bg-gray-1 border-gray-3"
                         } flex items-center justify-center w-10.5 h-9 rounded-[5px] border ease-out duration-200 hover:bg-blue hover:border-blue hover:text-white`}
                     >
                       <svg
@@ -217,8 +362,8 @@ const ShopWithSidebar = () => {
               {/* <!-- Products Grid Tab Content Start --> */}
               <div
                 className={`${productStyle === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7.5 gap-y-9"
-                    : "flex flex-col gap-7.5"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-7.5 gap-y-9"
+                  : "flex flex-col gap-7.5"
                   }`}
               >
                 {products.map((item, key) =>
@@ -260,8 +405,8 @@ const ShopWithSidebar = () => {
                         <button
                           onClick={() => setPage(i)}
                           className={`flex py-1.5 px-3.5 duration-200 rounded-[3px] ${meta.page === i
-                              ? "bg-blue text-white"
-                              : "hover:text-white hover:bg-blue"
+                            ? "bg-blue text-white"
+                            : "hover:text-white hover:bg-blue"
                             }`}
                         >
                           {i + 1}

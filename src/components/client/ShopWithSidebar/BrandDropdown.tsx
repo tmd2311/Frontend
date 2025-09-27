@@ -1,23 +1,23 @@
 "use client";
-import React, { useState } from "react";
 
-const GenderItem = ({ category }) => {
-  const [selected, setSelected] = useState(false);
+import { useState } from "react";
+
+const BrandItem = ({ brand, isSelected, onSelectionChange }) => {
   return (
     <button
       className={`${
-        selected && "text-blue"
+        isSelected && "text-blue"
       } group flex items-center justify-between ease-out duration-200 hover:text-blue `}
-      onClick={() => setSelected(!selected)}
+      onClick={() => onSelectionChange(brand.id, !isSelected)}
     >
       <div className="flex items-center gap-2">
         <div
           className={`cursor-pointer flex items-center justify-center rounded w-4 h-4 border ${
-            selected ? "border-blue bg-blue" : "bg-white border-gray-3"
+            isSelected ? "border-blue bg-blue" : "bg-white border-gray-3"
           }`}
         >
           <svg
-            className={selected ? "block" : "hidden"}
+            className={isSelected ? "block" : "hidden"}
             width="10"
             height="10"
             viewBox="0 0 10 10"
@@ -34,35 +34,29 @@ const GenderItem = ({ category }) => {
           </svg>
         </div>
 
-        <span>{category.name}</span>
+        <span>{brand.name}</span>
       </div>
-
-      <span
-        className={`${
-          selected ? "text-white bg-blue" : "bg-gray-2"
-        } inline-flex rounded-[30px] text-custom-xs px-2 ease-out duration-200 group-hover:text-white group-hover:bg-blue`}
-      >
-        {category.products}
-      </span>
     </button>
   );
 };
 
-const GenderDropdown = ({ genders }) => {
+const BrandDropdown = ({ brands, selectedBrands, onBrandChange }) => {
   const [toggleDropdown, setToggleDropdown] = useState(true);
 
   return (
     <div className="bg-white shadow-1 rounded-lg">
       <div
-        onClick={() => setToggleDropdown(!toggleDropdown)}
+        onClick={(e) => {
+          e.preventDefault();
+          setToggleDropdown(!toggleDropdown);
+        }}
         className={`cursor-pointer flex items-center justify-between py-3 pl-6 pr-5.5 ${
           toggleDropdown && "shadow-filter"
         }`}
       >
-        <p className="text-dark">Gender</p>
+        <p className="text-dark">Brand</p>
         <button
-          onClick={() => setToggleDropdown(!toggleDropdown)}
-          aria-label="button for gender dropdown"
+          aria-label="button for brand dropdown"
           className={`text-dark ease-out duration-200 ${
             toggleDropdown && "rotate-180"
           }`}
@@ -85,18 +79,23 @@ const GenderDropdown = ({ genders }) => {
         </button>
       </div>
 
-      {/* <!-- dropdown menu --> */}
+      {/* dropdown menu */}
       <div
         className={`flex-col gap-3 py-6 pl-6 pr-5.5 ${
           toggleDropdown ? "flex" : "hidden"
         }`}
       >
-        {genders.map((gender, key) => (
-          <GenderItem key={key} category={gender} />
+        {brands.map((brand) => (
+          <BrandItem 
+            key={brand.id} 
+            brand={brand} 
+            isSelected={selectedBrands.has(brand.id)}
+            onSelectionChange={onBrandChange}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-export default GenderDropdown;
+export default BrandDropdown;
