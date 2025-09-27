@@ -1,19 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
   Package,
   ShoppingCart,
   Users,
   LogOut,
   User,
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  console.log("userr", user)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);  
 
   const menuItems = [
     { href: "/admin-app/products/management", icon: Package, label: "Quản Lý Sản Phẩm" },
@@ -36,12 +41,21 @@ const Sidebar: React.FC = () => {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-gray-900 truncate">
-              Hoàng Minh Quân
+              {user?.fullName || "Đang tải..."}
             </h3>
-            <p className="text-xs text-gray-500 truncate">admin@company.com</p>
-            <span className="inline-block mt-1 px-3 py-1 text-[11px] font-medium rounded-full bg-purple-100 text-purple-700 transition-colors duration-200">
-              Administrator
-            </span>
+            <p className="text-xs text-gray-500 truncate">
+              {user?.email || "no-email"}
+            </p>
+
+            {mounted ? (
+              <span className="inline-block mt-1 px-3 py-1 text-[11px] font-medium rounded-full bg-purple-100 text-purple-700 transition-colors duration-200">
+                {user.roles.includes("Administrator") ? "Administrator" : "User"}
+              </span>
+            ) : (
+              <span className="inline-block mt-1 px-3 py-1 text-[11px] font-medium rounded-full bg-gray-100 text-gray-400">
+                User
+              </span>
+            )}
           </div>
           <button className="p-2 text-gray-400 transition-all duration-200 hover:text-red-500 hover:scale-110">
             <LogOut size={18} />
@@ -59,7 +73,7 @@ const Sidebar: React.FC = () => {
               <li key={item.href} className="group">
                 <Link
                   href={item.href}
-                  className={`w-full  px-4 py-2.5 rounded-xl flex items-center space-x-3 transition-all duration-300 group-hover:translate-x-1 ${
+                  className={`w-full px-4 py-2.5 rounded-xl flex items-center space-x-3 transition-all duration-300 group-hover:translate-x-1 ${
                     isActive
                       ? "bg-blue-600 text-white shadow-lg border-r-4 border-blue-400"
                       : "text-gray-600 hover:bg-gray-100/70 hover:text-gray-900"

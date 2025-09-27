@@ -14,18 +14,29 @@ import {
   CHANGE_PASSWORD_REQUEST,
   CHANGE_PASSWORD_SUCCESS,
   CHANGE_PASSWORD_FAILURE,
+  HYDRATE_AUTH, // thêm dòng này
 } from "./ActionType";
 
 const initialState = {
   loading: false,
   user: null,
-  isLogin : false,
+  isLogin: false,
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
+  roles: typeof window !== "undefined" ? JSON.parse(localStorage.getItem("roles") || "[]") : [],
   error: null,
 };
-
 export const authReducer = (state = initialState, action: any) => {
   switch (action.type) {
+    // ============== HYDRATE AUTH ==============
+    case HYDRATE_AUTH:
+      return {
+        ...state,
+        user: action.payload.user,
+        token: action.payload.token,
+        roles: action.payload.roles || state.roles,
+        isLogin: !!action.payload.token,
+      };
+
     // ============== REGISTER ==============
     case REGISTER_REQUEST:
       return { ...state, loading: true, error: null };
@@ -41,9 +52,13 @@ export const authReducer = (state = initialState, action: any) => {
       return {
         ...state,
         loading: false,
-        user: action.payload,
+        user: {
+          fullName: action.payload.fullName,
+          email: action.payload.email,
+        },
         token: action.payload.token,
-        isLogin: true
+        roles: action.payload.roles || [],
+        isLogin: true,
       };
     case LOGIN_FAILURE:
       return { ...state, loading: false, error: action.payload };
@@ -60,7 +75,13 @@ export const authReducer = (state = initialState, action: any) => {
     case LOGOUT_REQUEST:
       return { ...state, loading: true, error: null };
     case LOGOUT_SUCCESS:
-      return { ...state, loading: false, user: null, token: null , isLogin: false};
+      return {
+        ...state,
+        loading: false,
+        user: null,
+        token: null,
+        isLogin: false,
+      };
     case LOGOUT_FAILURE:
       return { ...state, loading: false, error: action.payload };
 

@@ -1,4 +1,4 @@
-import {BASE_AUTH_API_URL } from "@/utils/configAPI";
+import { BASE_AUTH_API_URL } from "@/utils/configAPI";
 import {
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
@@ -15,6 +15,7 @@ import {
   CHANGE_PASSWORD_REQUEST,
   CHANGE_PASSWORD_SUCCESS,
   CHANGE_PASSWORD_FAILURE,
+  HYDRATE_AUTH,
 } from "./ActionType";
 import { Register } from "@/types/Client/Auth/Register";
 import { LoginRequest } from "../../../types/Client/Auth/LoginRequest";
@@ -31,14 +32,11 @@ export const register = (data: Register, onSuccess?: any, onError?: any) => {
         body: JSON.stringify(data),
       });
       const resData = await res.json();
-      console.log(resData)
-      /*- Return errror if code  not equal 200  -*/ 
+
       if (resData.status?.code !== "200") {
         throw new Error(resData.status?.message || "Đăng ký thất bại");
       }
-     
 
-      /*- Gửi mỗi phần data lên trên store -*/ 
       dispatch({ type: REGISTER_SUCCESS, payload: resData.data });
       onSuccess?.(resData);
     } catch (error: any) {
@@ -67,9 +65,11 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
 
       if (resData.data?.token) {
         localStorage.setItem("token", resData.data.token);
+        console.log("token", resData.data.token)
         if (resData.data?.roleNames) {
           localStorage.setItem("roles", JSON.stringify(resData.data.roleNames));
         }
+
         dispatch({
           type: LOGIN_SUCCESS,
           payload: {
@@ -95,7 +95,8 @@ export const login = (data: LoginRequest, onSuccess?: any, onError?: any) => {
     }
   };
 };
-/*- Bổ sung sau -*/ 
+
+// ============== UPDATE USER ==============
 export const updateUser = (formData: FormData, onSuccess?: any, onError?: any) => {
   return async (dispatch) => {
     dispatch({ type: UPDATE_USER_REQUEST });
@@ -122,24 +123,31 @@ export const updateUser = (formData: FormData, onSuccess?: any, onError?: any) =
     }
   };
 };
-export const logoutAction = (logoutRequest : LogoutRequest, onSuccess?: any, onError?: any) => async (dispatch) => {
-  dispatch({ type: LOGOUT_REQUEST });
-  try {
-    
+
+// ============== LOGOUT ==============
+export const logoutAction = (logoutRequest: LogoutRequest, onSuccess?: any, onError?: any) => {
+  return async (dispatch) => {
+    dispatch({ type: LOGOUT_REQUEST });
+    try {
       const res = await fetch(`${BASE_AUTH_API_URL}/api/logout`, {
         method: "POST",
         headers: { Authorization: `Bearer ${logoutRequest.token}` },
       });
-    const resData = await res.json();
-    if(resData.status.code === 200){
-      sessionStorage.clear();
+
+      const resData = await res.json();
+
+      if (resData.status.code === 200) {
+        sessionStorage.clear();
+        localStorage.clear();
+      }
+
+      dispatch({ type: LOGOUT_SUCCESS });
+      onSuccess?.(resData);
+    } catch (error: any) {
+      dispatch({ type: LOGOUT_FAILURE, payload: error.message });
+      onError?.(error.message);
     }
-    dispatch({ type: LOGOUT_SUCCESS });
-    onSuccess?.(resData);
-  } catch (error: any) {
-    dispatch({ type: LOGOUT_FAILURE, payload: error.message });
-    onError?.(error.message);
-  }
+  };
 };
 
 // ============== CHANGE PASSWORD ==============
@@ -169,7 +177,22 @@ export const changePassword = (data: any, onSuccess?: any, onError?: any) => {
     } catch (error: any) {
       dispatch({ type: CHANGE_PASSWORD_FAILURE, payload: error.message });
       onError?.(error.message);
+    }
+  };
+};
 
+// ============== HYDRATE AUTH (giữ session) ==============
+export const hydrateAuth = () => {
+  return (dispatch: any) => {
+    const token = localStorage.getItem("token");
+    const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (token && user) {
+      dispatch({
+        type: HYDRATE_AUTH,
+        payload: { token, roles, user },
+      });
     }
   };
 };

@@ -1,21 +1,20 @@
 "use client";
 
-import Breadcrumb from "@/components/client/Common/Breadcrumb";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { login } from "../../../../redux/Client/Auth/Action";
 import { LoginRequest } from "../../../../types/Client/Auth/LoginRequest";
-import { useAppDispatch } from "../../../../redux/store";
 import { toast } from "react-toastify";
-
+import { useAuth } from "@/hooks/useAuth";
+import { on } from "node:events";
 const Signin = () => {
   const [formData, setFormData] = useState<LoginRequest>({
     account: "",
     password: "",
   });
 
-  const dispatch = useAppDispatch();
+  const { login } = useAuth();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -36,32 +35,26 @@ const Signin = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  console.log("Đăng nhập với:", formData);
-
-  dispatch(
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Đăng nhập với:", formData);
     login(
       formData,
-      (resData: any) => {
-        toast.success("Đăng nhập thành công");
-
-        // Lấy roles từ response
-        const roles = resData.data?.roleNames || [];
-
-        if (roles.includes("Administrator")) {
-          router.push("/admin-app");
-        } else {
-          router.push("/");
-        }
+      () => {
+        toast.success("Login successful!");
+        router.push("/admin-app");
       },
-      (error: any) => {
-        console.error("Đăng nhập thất bại:", error);
-        toast.error(error);
+      (error) => {
+        toast.error("Login failed!");
+        console.error("Login error:", error);
       }
-    )
-  );
-};
+    );
+
+  };
+
+  useEffect(() => {
+
+  }, []);
   return (
     <>
       <section className="overflow-hidden py-20 bg-gray-2">
