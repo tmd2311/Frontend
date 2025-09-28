@@ -42,9 +42,8 @@ export const useAuth = () => {
               localStorage.setItem("token", mappedUser.token);
               localStorage.setItem("roles", JSON.stringify(mappedUser.roles));
               localStorage.setItem("user", JSON.stringify(mappedUser));
-              localStorage.setItem("isLogin", "true"); // ✅ lưu trạng thái đăng nhập
-
-              console.log("Userxxxx: ", mappedUser);
+              localStorage.setItem("isLogin", "true");
+              window.dispatchEvent(new Event("userChanged"));
 
               if (onSuccess) onSuccess(mappedUser);
             },
@@ -77,8 +76,8 @@ export const useAuth = () => {
             localStorage.removeItem("token");
             localStorage.removeItem("roles");
             localStorage.removeItem("user");
-            localStorage.setItem("isLogin", "false"); // ✅ clear login state
-
+            localStorage.setItem("isLogin", "false");
+            window.dispatchEvent(new Event("userChanged"));
             if (onSuccess) onSuccess();
           },
           onError

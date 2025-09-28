@@ -21,6 +21,7 @@ const Header = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+  const loadUser = () => {
     const storedUser = localStorage.getItem("user");
     const storedIsLogin = localStorage.getItem("isLogin");
 
@@ -31,14 +32,29 @@ const Header = () => {
       setUser(null);
       setIsLogin(false);
     }
-  }, []);
+  };
+
+  loadUser(); // load lần đầu
+  const handleUserChange = () => {
+    loadUser();
+  };
+  window.addEventListener("userChanged", handleUserChange);
+  window.addEventListener("storage", handleUserChange);
+
+  return () => {
+    window.removeEventListener("userChanged", handleUserChange);
+    window.removeEventListener("storage", handleUserChange);
+  };
+}, []);
+
+
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
 
     dispatch(
       logoutAction(
-        { token: localStorage.getItem("token") }, // lấy token từ localStorage
+        { token: localStorage.getItem("token") },
         () => {
           // clear localStorage
           localStorage.removeItem("token");
